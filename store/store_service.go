@@ -37,7 +37,25 @@ func InitializeStore() *StorageService{
 		panic(fmt.Sprintf("Error init redis: %v", err))
 	}
 
-	fmt.Printf("\nRedis started successfully: pong message = {%s}", pong)
+	fmt.Printf("\nRedis started: pong message = {%s}", pong)
 	storeService.redisClient = redisClient
 	return storeService
+}
+
+// for the saving between original and generated short URL 
+func SaveUrlMapping(shortUrl string, originalUrl string, userId string) {
+	err := storeService.redisClient.Set(ctx, shortUrl, originalUrl, CacheDuration).Err()
+	if err != nil {
+		panic(fmt.Sprintf("Failed saving key url | Error: %v - shortUrl: %s - originalUrl: %s\n", err, shortUrl, originalUrl))
+	}
+
+}
+
+// reverse the short url to the longer, initial URL so that we can redirect it.
+func RetrieveInitialUrl(shortUrl string) string {
+	initialUrl, err := storeService.redisClient.Get(ctx, shortUrl).Result() 
+	if err != nil {
+		panic(fmt.Sprintf("Failed RetrieveInitialUrl url | Error: %v - shortUrl: %s\n", err, shortUrl))
+	}
+	return initialUrl
 }
