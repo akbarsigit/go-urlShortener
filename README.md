@@ -1,4 +1,4 @@
-# URL shortener implementation with golang
+# URL shortener implementation with Redis & golang
 
 ## How to Use
 
